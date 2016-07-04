@@ -22,29 +22,47 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         
-        exerciseOne()
-        exerciseTwo()
-        exerciseThree()
-        
+         // This code will call the iTunes top 25 movies endpoint listed above
         let apiToContact = "https://itunes.apple.com/us/rss/topmovies/limit=25/json"
-        // This code will call the iTunes top 25 movies endpoint listed above
+
         Alamofire.request(.GET, apiToContact).validate().responseJSON() { response in
             switch response.result {
             case .Success:
                 if let value = response.result.value {
-                    let json = JSON(value)
+                    let moviesData = JSON(value)
                     
-                    // Do what you need to with JSON here!
-                    // The rest is all boiler plate code you'll use for API requests
+                    // Grab the array of JSON objects representing each movie
+                    let allMoviesJSONData = moviesData["feed"]["entry"].arrayValue
                     
+                    // Turn the allMoviesData array into Movie structs!
+                    var allMovies: [Movie] = []
                     
+                    for movieJSON in allMoviesJSONData  {
+                        
+                        allMovies.append(Movie(json: movieJSON))
+                    }
+     
+                    //lets populate a movie
+                    self.movieTitleLabel.text  = allMovies[0].name
+                    self.rightsOwnerLabel.text = allMovies[0].rightsOwner
+                    self.releaseDateLabel.text = allMovies[0].releaseDate
+                    self.priceLabel.text =  String(allMovies[0].price)
+                    
+                    //load the image
+                    if let imageLink = allMovies[0].imageLink {
+                        self.loadPoster(imageLink)
+                    }
+
+                    
+
                 }
+        
             case .Failure(let error):
-                print(error)
+                print("pappu : \(error) ")
             }
         }
+    
     }
 
     override func didReceiveMemoryWarning() {
@@ -58,6 +76,9 @@ class ViewController: UIViewController {
     }
     
     @IBAction func viewOniTunesPressed(sender: AnyObject) {
+        
+        print (" inside viewOniTunesPressed ")
+        UIApplication.sharedApplication().openURL(NSURL(string: "http://www.stackoverflow.com")!)
         
     }
     
